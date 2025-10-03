@@ -29,7 +29,11 @@ class SchedulerTasks(commands.Cog):
                 if task.get("attachment_path") and os.path.exists(task["attachment_path"]):
                     file_to_send = discord.File(task["attachment_path"])
 
-                await channel.send(content=task["message_content"], file=file_to_send)
+                user_id = task["user_id"]
+                original_content = task["message_content"]
+                final_content = f"This message was scheduled by <@{user_id}>.\n\n{original_content}"
+
+                await channel.send(content=final_content, file=file_to_send)
                 print(f"🚀 Sent scheduled message to channel {channel.name}")
 
                 await self.bot.db.delete_schedule_by_id(task["_id"])
