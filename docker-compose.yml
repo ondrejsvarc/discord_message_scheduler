@@ -1,7 +1,7 @@
 services:
   # The MongoDB Database Service
   mongo:
-    image: mongo:latest
+    image: mongo:4.4
     container_name: mongodb_scheduler
     restart: unless-stopped
     env_file: .env
