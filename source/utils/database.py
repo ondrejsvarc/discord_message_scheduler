@@ -3,8 +3,8 @@ from datetime import datetime
 import pytz
 from bson import ObjectId
 
-# Import config from the source folder
 from source.config import MONGO_URI
+
 
 class DatabaseHandler:
     def __init__(self):
@@ -13,10 +13,6 @@ class DatabaseHandler:
         self.db = self.client.schedule_bot
         self.schedules = self.db.schedules
         print("DB Handler Initialized.")
-
-    async def add_schedule(self, data: dict):
-        """Adds a new schedule document to the collection."""
-        return await self.schedules.insert_one(data)
 
     async def get_user_schedules(self, user_id: int):
         """Fetches all scheduled messages for a given user."""
@@ -27,7 +23,11 @@ class DatabaseHandler:
         """Fetches all schedules that are due to be sent."""
         now_utc = datetime.now(pytz.utc)
         cursor = self.schedules.find({"send_timestamp": {"$lte": now_utc}})
-        return cursor # Return the cursor to iterate over it
+        return cursor
+
+    async def count_schedules_in_guild(self, guild_id: int):
+        """Counts the number of scheduled messages for a given guild."""
+        return await self.schedules.count_documents({"guild_id": guild_id})
 
     async def delete_schedule_by_id(self, task_id: ObjectId):
         """Deletes a schedule by its MongoDB _id."""

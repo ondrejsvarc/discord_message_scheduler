@@ -6,7 +6,7 @@ from datetime import datetime
 import pytz
 
 # Import config from the source folder
-from source.config import TIMEZONE, ATTACHMENT_DIR
+from source.config import TIMEZONE, ATTACHMENT_DIR, MAX_SCHEDULES_PER_GUILD
 
 
 class ScheduleCommand(commands.Cog):
@@ -15,6 +15,14 @@ class ScheduleCommand(commands.Cog):
 
     @app_commands.command(name="schedule_message", description="Schedule a message to be sent in this channel/thread.")
     async def schedule_message(self, interaction: discord.Interaction):
+        current_count = await self.bot.db.count_schedules_in_guild(interaction.guild.id)
+        if current_count >= MAX_SCHEDULES_PER_GUILD:
+            await interaction.response.send_message(
+                f"❌ **Limit Reached!** This server already has {current_count}/{MAX_SCHEDULES_PER_GUILD} messages scheduled. "
+                "Please use `/remove` to delete an old one before adding another.",
+                ephemeral=True
+            )
+            return
         user = interaction.user
         try:
             await interaction.response.send_message("I've sent you a DM to schedule your message! 📬", ephemeral=True)
