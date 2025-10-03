@@ -14,6 +14,10 @@ class DatabaseHandler:
         self.schedules = self.db.schedules
         print("DB Handler Initialized.")
 
+    async def add_schedule(self, data: dict):
+        """Adds a new schedule document to the collection."""
+        return await self.schedules.insert_one(data)
+
     async def get_user_schedules(self, user_id: int):
         """Fetches all scheduled messages for a given user."""
         cursor = self.schedules.find({"user_id": user_id})
