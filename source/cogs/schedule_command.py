@@ -1,3 +1,5 @@
+import traceback
+
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -23,6 +25,7 @@ class ScheduleCommand(commands.Cog):
                 ephemeral=True
             )
             return
+
         user = interaction.user
         try:
             await interaction.response.send_message("I've sent you a DM to schedule your message! 📬", ephemeral=True)
@@ -76,10 +79,20 @@ class ScheduleCommand(commands.Cog):
                 embed.set_footer(text=f"Attachment: {os.path.basename(attachment_path)}")
             await dm_channel.send(embed=embed)
 
+
         except TimeoutError:
-            await dm_channel.send("⏰ You took too long. Please start over.")
+            await dm_channel.send("⏰ You took too long to respond. Please start over.")
         except ValueError:
-            await dm_channel.send("❌ Invalid format. Please use `dd.MM.yyyy hh:mm`. Start over.")
+            await dm_channel.send("❌ Invalid date/time format. Please use `dd.MM.yyyy hh:mm`. Start over.")
+        except Exception as e:
+            print("--- AN UNEXPECTED ERROR OCCURRED IN SCHEDULE COMMAND ---")
+            traceback.print_exc()
+            print("----------------------------------------------------")
+            if dm_channel:
+                await dm_channel.send(
+                    "❌ **An unexpected error occurred!** I couldn't complete the scheduling process. "
+                    "The administrator has been notified of the error."
+                )
 
 
 async def setup(bot: commands.Bot):
